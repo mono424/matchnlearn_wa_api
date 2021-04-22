@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrious/4.0.2/qrious.min.js" integrity="sha512-pUhApVQtLbnpLtJn6DuzDD5o2xtmLJnJ7oBoMsBnzOkVkpqofGLGPaBJ6ayD2zQe3lCgCibhJBi4cj5wAxwVKA==" crossorigin="anonymous"></script>
+    <title>Authenticate WhatsApp</title>
+</head>
+<body>
+    <div style="width: 300px; padding: 40px; border-radius: 26px; background: white; margin: 40px auto;">
+      <p>Please scan following QR-Code in the next 120 seconds to Authorize WhatsApp:</p>
+      <canvas id="qr"></canvas>
+    </div>
+    <script>
+      (function() {
+        var qr = new QRious({
+          size: 300,
+          element: document.getElementById('qr'),
+          value: "{{VALUE}}"
+        });
+      })();
+    </script>
+</body>
+</html>

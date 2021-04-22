@@ -1,6 +1,6 @@
 const routes= [
     require('./api/index'),
-    require('./api/person'),
+    require('./api/auth'),
 ];
 
 module.exports = {
