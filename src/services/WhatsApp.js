@@ -91,5 +91,33 @@ module.exports = {
         }
         this._client.destroy();
         this._client = null;
+    },
+
+    waitForGroupChatJoin(chatId) {
+        return new Promise((res, rej) => {
+            let groupJoinCallback;
+            const start = new Date().getTime();
+
+            // receive notification callback
+            groupJoinCallback = (notification) => {
+                console.log({notification});
+                const { id } = notification;
+                if (id.remote === chatId) {
+                    const duration = new Date().getTime() - start;
+                    res(`by "notification" in ${duration / 1000}s`);
+                    this.getClient().off('group_join', groupJoinCallback);
+                    groupJoinCallback = null;
+                }
+            };
+
+            // subscribe `group_join` events
+            this.getClient().on('group_join', groupJoinCallback);
+
+            setTimeout(() => {
+                this.getClient().off('group_join', groupJoinCallback);
+                const duration = new Date().getTime() - start;
+                rej(`Failed after waiting ${duration / 1000}s`);
+            }, 5000);
+        });
     }
 };
