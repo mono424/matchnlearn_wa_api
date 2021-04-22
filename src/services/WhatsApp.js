@@ -1,11 +1,12 @@
 const fs = require('fs');
-const WAWebJS = require('whatsapp-web.js');
+const path = require('path');
 const { Client } = require('whatsapp-web.js');
 
-const SESSION_FILE_PATH = "../../data/wa_session.json";
+const SESSION_FILE_PATH = path.resolve(__dirname + "/../../data/wa_session.json");
 const TIMEOUT_MS = 125 * 1000; //125 seconds
 
 module.exports = {
+    _authClient: null,
     _client: null,
 
     /**
@@ -14,6 +15,7 @@ module.exports = {
      */
     async _setupClient(client) {
         this._client = client;
+        console.log("** Whatsapp Authorized **")
     },
     
     /**
@@ -23,6 +25,10 @@ module.exports = {
         return this._client;
     },
 
+    /**
+     * Initializes the client with stored session, if available.
+     * @returns {Promise}
+     */
     init() {
         if (!fs.existsSync(SESSION_FILE_PATH)) {
             return;
@@ -32,7 +38,7 @@ module.exports = {
             let storedSession = require(SESSION_FILE_PATH);
             const client = new Client({ session: storedSession });
             client.on('authenticated', session => {
-                fs.writeFile(SESSION_FILE_PATH, JSON.stringify(session));
+                fs.writeFile(SESSION_FILE_PATH, JSON.stringify(session), (err) => console.error(err));
                 this._setupClient(client);
                 res();
             });
@@ -45,29 +51,40 @@ module.exports = {
         });
     },
 
+    /**
+     * Creates a new client instance if not authenticated already
+     * Caches a ClientInstance for TIMEOUT_MS.
+     * Returns QRCode data for Authentication.
+     * @returns {String}
+     */
     authorize() {
         return new Promise((res, rej) => {
             if(this._client) return rej(new Error("Already authorized."));
 
-            const client = new Client();
+            this._authClient = this._authClient ? this._authClient : new Client();
             const timeoutId = setTimeout(() => {
-                client.destroy();
+                this._authClient.destroy();
+                this._authClient = null;
             }, TIMEOUT_MS)
 
-            client.on('qr', (qr) => {
+            this._authClient.on('qr', (qr) => {
                 res(qr);
             });
 
-            client.on('authenticated', (session) => {
+            this._authClient.on('authenticated', (session) => {
                 clearTimeout(timeoutId);
-                fs.writeFile(SESSION_FILE_PATH, JSON.stringify(session));
-                this._setupClient(client);
+                fs.writeFile(SESSION_FILE_PATH, JSON.stringify(session), (err) => console.error(err));
+                this._setupClient(this._authClient);
+                this._authClient = null;
             });
 
-            client.initialize();
+            this._authClient.initialize();
         });
     },
 
+    /**
+     * Deauthorizes the current Client and deletes all Sessions.
+     */
     deauthorize() {
         if (fs.existsSync(SESSION_FILE_PATH)) {
             fs.unlinkSync(SESSION_FILE_PATH);

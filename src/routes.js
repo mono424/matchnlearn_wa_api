@@ -1,6 +1,7 @@
 const routes= [
     require('./api/index'),
     require('./api/auth'),
+    require('./api/group'),
 ];
 
 module.exports = {
