@@ -1,6 +1,5 @@
-const fs = require('fs');
-const path = require('path');
 const Joi = require('@hapi/joi');
+const Boom = require('@hapi/boom');
 const WhatsAppService = require('../services/WhatsApp');
 
 const MODERATOR_ID = "573244142966@c.us";
@@ -25,7 +24,7 @@ module.exports = {
                 const { participents } = request.payload;
 
                 if (!WhatsAppService.getClient()) {
-                    return { err: "Not Authorized. Authorize whatsapp first by using '/auth'." };
+                    return Boom.locked("Not Authorized. Authorize whatsapp first by using '/auth'.");
                 }
                 
                 try {
@@ -39,18 +38,26 @@ module.exports = {
                     
                     for (const participent of participents) {
                         try {
-                            console.log({n: converNumber(participent.number)});
+                            const numberId = converNumber(participent.number);
+                            const numLookup = await WhatsAppService.getClient().checkNumberStatus(numberId);
+                            if (!numLookup.numberExists) {
+                                throw Error("Number does not use WhatsApp.");
+                            }
+                            if (!numLookup.numberExists) {
+                                throw Error("Number is registered but cannot receive Messages.");
+                            }
                             const message = participent.message.replace("{inviteUrl}", inviteLink);
-                            await WhatsAppService.getClient().sendLinkPreview(converNumber(participent.number), inviteLink, message);
+                            await WhatsAppService.getClient().sendLinkPreview(numberId, inviteLink, message);
                             res.push({ participent: participent.number, err: null });
                         } catch (error) {
-                            res.push({ participent: participent.number, err: error.message });
+                            res.push({ participent: participent.number, error: error.message });
                         }
                     }
 
                     return { res, err: null };
                 } catch (error) {
-                    return { err: error.message };
+                    console.error(error);
+                    return Boom.internal("Something went wrong. Check the server logs.");
                 }
             }
         }
