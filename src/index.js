@@ -8,11 +8,9 @@ const WhatsAppService = require('./services/WhatsApp');
 const init = async () => {
     const server = Hapi.server({
         port: process.env.PORT,
-        host: 'localhost',
+        host: process.env.HOST,
         routes: {
-            cors: {
-                origin: ['*'] // todo: add cors        
-            }
+            cors: true // todo: add cors
         }
     });
     

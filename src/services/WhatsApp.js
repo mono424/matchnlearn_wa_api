@@ -3,7 +3,9 @@ const path = require('path');
 const { Client } = require('whatsapp-web.js');
 
 const SESSION_FILE_PATH = path.resolve(__dirname + "/../../data/wa_session.json");
-const TIMEOUT_MS = 125 * 1000; //125 seconds
+const AUTH_TIMEOUT_MS = 125 * 1000; // 125 seconds
+const GROUP_WAIT_TIMEOUT_MS = 120 * 1000; // 120 seconds
+const GROUP_CHECK_INTERVAL = 5 * 1000; // 5 seconds
 
 module.exports = {
     _authClient: null,
@@ -15,6 +17,7 @@ module.exports = {
      */
     async _setupClient(client) {
         this._client = client;
+        client.on('group_join', () => console.log("join group"));
         console.log("** Whatsapp Authorized **")
     },
     
@@ -36,7 +39,7 @@ module.exports = {
         
         return new Promise((res, rej) => {
             let storedSession = require(SESSION_FILE_PATH);
-            const client = new Client({ session: storedSession });
+            const client = new Client({ puppeteer: { headless: false }, session: storedSession });
             client.on('authenticated', session => {
                 fs.writeFile(SESSION_FILE_PATH, JSON.stringify(session), (err) => console.error(err));
                 this._setupClient(client);
@@ -53,7 +56,7 @@ module.exports = {
 
     /**
      * Creates a new client instance if not authenticated already
-     * Caches a ClientInstance for TIMEOUT_MS.
+     * Caches a ClientInstance for AUTH_TIMEOUT_MS.
      * Returns QRCode data for Authentication.
      * @returns {String}
      */
@@ -65,7 +68,7 @@ module.exports = {
             const timeoutId = setTimeout(() => {
                 this._authClient.destroy();
                 this._authClient = null;
-            }, TIMEOUT_MS)
+            }, AUTH_TIMEOUT_MS)
 
             this._authClient.on('qr', (qr) => {
                 res(qr);
@@ -93,31 +96,29 @@ module.exports = {
         this._client = null;
     },
 
-    waitForGroupChatJoin(chatId) {
+    async waitForGroupChat(groupId) {
+        // If its already available
+        try {
+            return await WhatsAppService.getClient().getChatById(groupId);
+        } catch (_) {}
+
+        // If we have to wait to join the group
+        console.log(`waiting for group(${groupId})...`);
         return new Promise((res, rej) => {
-            let groupJoinCallback;
             const start = new Date().getTime();
-
-            // receive notification callback
-            groupJoinCallback = (notification) => {
-                console.log({notification});
-                const { id } = notification;
-                if (id.remote === chatId) {
-                    const duration = new Date().getTime() - start;
-                    res(`by "notification" in ${duration / 1000}s`);
-                    this.getClient().off('group_join', groupJoinCallback);
-                    groupJoinCallback = null;
-                }
-            };
-
-            // subscribe `group_join` events
-            this.getClient().on('group_join', groupJoinCallback);
-
-            setTimeout(() => {
-                this.getClient().off('group_join', groupJoinCallback);
+            let intervalId;
+            intervalId = setInterval(async () => {
                 const duration = new Date().getTime() - start;
-                rej(`Failed after waiting ${duration / 1000}s`);
-            }, 5000);
+
+                if(duration > GROUP_WAIT_TIMEOUT_MS) {
+                    clearInterval(intervalId);
+                    return rej(`Failed after waiting ${duration / 1000}s`);
+                }
+
+                try {
+                    res(await WhatsAppService.getClient().getChatById(groupId));
+                } catch (_) {}
+            }, GROUP_CHECK_INTERVAL);
         });
     }
 };
