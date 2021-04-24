@@ -3,6 +3,16 @@ const venom = require('venom-bot');
 
 const GROUP_WAIT_TIMEOUT = 10000; // 10 seconds
 
+const CHROMIUM_ARGS = [
+    '--disable-web-security', '--no-sandbox', '--disable-web-security',
+    '--aggressive-cache-discard', '--disable-cache', '--disable-application-cache',
+    '--disable-offline-load-stale-cache', '--disk-cache-size=0',
+    '--disable-background-networking', '--disable-default-apps', '--disable-extensions',
+    '--disable-sync', '--disable-translate', '--hide-scrollbars', '--metrics-recording-only',
+    '--mute-audio', '--no-first-run', '--safebrowsing-disable-auto-update',
+    '--ignore-certificate-errors', '--ignore-ssl-errors', '--ignore-certificate-errors-spki-list'
+];
+
 module.exports = {
     events: new EventEmitter(),
     _currentQr: null,
@@ -59,6 +69,7 @@ module.exports = {
                 disableWelcome: true,
                 debug: false, // Opens a debug session
                 logQR: false, // Logs QR automatically in terminal
+                browserArgs: chromiumArgs,
             },
         );
         this.getClient().onAddedToGroup((...events) => this.events.emit("onAddedToGroup", ...events))
