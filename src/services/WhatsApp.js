@@ -69,7 +69,7 @@ module.exports = {
                 disableWelcome: true,
                 debug: false, // Opens a debug session
                 logQR: false, // Logs QR automatically in terminal
-                browserArgs: chromiumArgs,
+                browserArgs: CHROMIUM_ARGS,
             },
         );
         this.getClient().onAddedToGroup((...events) => this.events.emit("onAddedToGroup", ...events))
