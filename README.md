@@ -14,15 +14,24 @@ Open this endpoint in a Browser to authorize or deauthorize the whatsapp bot. Th
 #### Query Params
  - **deauth** *boolean*
 
- ### POST /group
+### POST /group
 This endpoint creates a group and invites all participients defined in the payload. You can sent individuel messages, where the placeholder `{inviteUrl}` will be replaced by the join link(if you want to display the link under the link container again).
 #### Body / Payload
 ```json
-    {
-        "participents": [
-            { "number": "+49000000000", "message": "Hey Daniel, join our cool group :) Here is the link {inviteUrl}." },
-            { "number": "+49000000001", "message": "Hey Franklin, join our cool group :) Here is the link {inviteUrl}." }
-        ]
-    }
+{
+    "participents": [
+        { "number": "+49000000000", "message": "Hey Daniel, join our cool group :) Here is the link {inviteUrl}." },
+        { "number": "+49000000001", "message": "Hey Franklin, join our cool group :) Here is the link {inviteUrl}." }
+    ]
+}
 ```
 
+### POST /message
+This endpoint can send a message to specific number. You can use it confirmations, reminders or notifications for example.
+#### Body / Payload
+```json
+{
+	"number": "+49000000000",
+	"message": "Hey Daniel, this is my awesome confirmation message :)"
+}
+```
