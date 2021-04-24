@@ -27,7 +27,7 @@ This endpoint creates a group and invites all participients defined in the paylo
 ```
 
 ### POST /message
-This endpoint can send a message to specific number. You can use it confirmations, reminders or notifications for example.
+This endpoint sends a message to specific number. You can use it confirmations, reminders or notifications for example.
 #### Body / Payload
 ```json
 {

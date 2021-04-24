@@ -2,8 +2,8 @@ const Joi = require('@hapi/joi');
 const Boom = require('@hapi/boom');
 const WhatsAppService = require('../services/WhatsApp');
 
-const MODERATOR_ID = "573244142966@c.us";
 const converNumber = (number) => number.replace(/^[\+]/, "") + "@c.us";
+const DUMMY_MEMBER_PHONE = process.env.DUMMY_MEMBER_PHONE;
 
 module.exports = {
     routes: () => [
@@ -28,10 +28,11 @@ module.exports = {
                 }
                 
                 try {
-                    const { gid: { _serialized: groupId } } = await WhatsAppService.getClient().createGroup("MatchNLearn Group", [MODERATOR_ID]);
+                    const dummyMemberId = converNumber(DUMMY_MEMBER_PHONE);
+                    const { gid: { _serialized: groupId } } = await WhatsAppService.getClient().createGroup("MatchNLearn Group", [dummyMemberId]);
 
                     await WhatsAppService.waitForGroup(groupId);
-                    await WhatsAppService.getClient().removeParticipant(groupId, MODERATOR_ID);
+                    await WhatsAppService.getClient().removeParticipant(groupId, dummyMemberId);
 
                     const inviteLink = await WhatsAppService.getClient().getGroupInviteLink(groupId);
                     const res = [];
