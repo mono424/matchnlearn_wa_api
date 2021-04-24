@@ -6,15 +6,15 @@ Url: https://matchnlearn-wa-api.herokuapp.com
 
 ## REST-Endpoints
 
-### GET **/**
+### GET /
 returns a welcome message.
 
-### GET **/auth**
+### GET /auth
 Open this endpoint in a Browser to authorize or deauthorize the whatsapp bot. This endpoint will display a page with an QR-Code. This code should be scanned with your device.
 #### Query Params
  - **deauth** *boolean*
 
- ### POST **/group**
+ ### POST /group
 This endpoint creates a group and invites all participients defined in the payload. You can sent individuel messages, where the placeholder `{inviteUrl}` will be replaced by the join link(if you want to display the link under the link container again).
 #### Body / Payload
 ```json
