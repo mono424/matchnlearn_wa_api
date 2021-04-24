@@ -14,8 +14,7 @@ const init = async () => {
         }
     });
     
-    await WhatsAppService.init();
-    
+    WhatsAppService.init();
     registerRoutes(server);
 
     await server.start();
