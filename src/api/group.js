@@ -2,11 +2,9 @@ const fs = require('fs');
 const path = require('path');
 const Joi = require('@hapi/joi');
 const WhatsAppService = require('../services/WhatsApp');
-const TEMPLATE = fs.readFileSync(path.resolve(__dirname + "/../../html/auth.html")).toString();
 
 const MODERATOR_ID = "573244142966@c.us";
-const converNumber = (number) => number.replace(/^\\+/, "") + "@c.us";
-const inviteCodeToUrl = (inviteCode) => `https://chat.whatsapp.com/${inviteCode}`;
+const converNumber = (number) => number.replace(/^[\+]/, "") + "@c.us";
 
 module.exports = {
     routes: () => [
@@ -17,8 +15,8 @@ module.exports = {
                 validate: {
                     payload: Joi.object({ 
                         participents: Joi.array().items(Joi.object({
-                            number: Joi.string(),
-                            message: Joi.string()
+                            number: Joi.string().required(),
+                            message: Joi.string().required()
                         })).min(1).required()
                     })
                 }
@@ -31,32 +29,26 @@ module.exports = {
                 }
                 
                 try {
-                    const moderator = await WhatsAppService.getClient().getContactById(MODERATOR_ID);
-                    const res = await WhatsAppService.getClient().createGroup("MatchNLearn Group", [moderator]);
-                    const groupId = res.gid._serialized;
+                    const { gid: { _serialized: groupId } } = await WhatsAppService.getClient().createGroup("MatchNLearn Group", [MODERATOR_ID]);
 
-                    const groupChat = await WhatsAppService.waitForGroupChat(groupId);
+                    await WhatsAppService.waitForGroup(groupId);
+                    await WhatsAppService.getClient().removeParticipant(groupId, MODERATOR_ID);
 
-                    console.log(groupChat);
-
-                    // try {
-                    //     await WhatsAppService.waitForGroupChatJoin(groupId);
-                    // } catch (error) {}
-                    // const groupChat = await WhatsAppService.getClient().getChatById(groupId);
-                    // const inviteCode = await groupChat.getInviteCode();
-                    // console.log({inviteCode});
+                    const inviteLink = await WhatsAppService.getClient().getGroupInviteLink(groupId);
+                    const res = [];
                     
-                    // for (const participent of participents) {
-                    //     console.log({n: participent.number});
-                    //     if (participent.message) {
-                    //         const message = participent.message.replace("{invite}", inviteCodeToUrl(inviteCode));
-                    //         await WhatsAppService.getClient().sendMessage(converNumber(participent.number), message);
-                    //     } else {
-                    //         await WhatsAppService.getClient().sendMessage(converNumber(participent.number), inviteCodeToUrl(inviteCode));
-                    //     }
-                    // }
+                    for (const participent of participents) {
+                        try {
+                            console.log({n: converNumber(participent.number)});
+                            const message = participent.message.replace("{inviteUrl}", inviteLink);
+                            await WhatsAppService.getClient().sendLinkPreview(converNumber(participent.number), inviteLink, message);
+                            res.push({ participent: participent.number, err: null });
+                        } catch (error) {
+                            res.push({ participent: participent.number, err: error.message });
+                        }
+                    }
 
-                    return { err: null };
+                    return { res, err: null };
                 } catch (error) {
                     return { err: error.message };
                 }

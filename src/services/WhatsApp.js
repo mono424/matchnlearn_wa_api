@@ -1,6 +1,10 @@
+const EventEmitter = require('events');
 const venom = require('venom-bot');
 
+const GROUP_WAIT_TIMEOUT = 10000; // 10 seconds
+
 module.exports = {
+    events: new EventEmitter(),
     _currentQr: null,
     _client: null,
     _status: null,
@@ -57,6 +61,7 @@ module.exports = {
                 logQR: false, // Logs QR automatically in terminal
             },
         );
+        this.getClient().onAddedToGroup((...events) => this.events.emit("onAddedToGroup", ...events))
     },
 
     onStatusChange(statusSession) {
@@ -84,4 +89,24 @@ module.exports = {
         this._currentQr = null;
         return this.getClient().logout();
     },
+
+    /**
+     * Wait for Group
+     */
+    async waitForGroup(groupId) {
+        return new Promise((res, rej) => {
+            let timeoutId;
+            const onJoin = chatEvent => {
+                clearTimeout(timeoutId);
+                if (groupId == chatEvent.id)
+                res(chatEvent);
+            };
+
+            timeoutId = setTimeout(() => {
+                this.events.off("onAddedToGroup", onJoin);
+                rej(new Error("timeout!"));
+            }, GROUP_WAIT_TIMEOUT);
+            this.events.once("onAddedToGroup", onJoin);
+        })
+    }
 };
