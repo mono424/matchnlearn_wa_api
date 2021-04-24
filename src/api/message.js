@@ -18,8 +18,8 @@ module.exports = {
             },
             handler: async (request, h) => {
                 const { number, message } = request.payload;
-
-                if (!WhatsAppService.getClient()) {
+                
+                if (!(await WhatsAppService.isAuthorized())) {
                     return Boom.locked("Not Authorized. Authorize whatsapp first by using '/auth'.");
                 }
                 
