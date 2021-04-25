@@ -1,4 +1,5 @@
 const WhatsAppService = require('../services/WhatsAppService');
+const DBLogService = require('../services/DBLogService');
 
 const converNumber = (number) => number.replace(/^[\+]/, "") + "@c.us";
 const DUMMY_MEMBER_PHONE = process.env.DUMMY_MEMBER_PHONE;
@@ -6,6 +7,7 @@ const DUMMY_MEMBER_PHONE = process.env.DUMMY_MEMBER_PHONE;
 module.exports = {
 
     async sendMessage(number, message) {
+        const logEntryId = await DBLogService.createEntry("WhatsAppController.sendMessage", { number, message });
         const numberId = converNumber(number);
         const numLookup = await WhatsAppService.getClient().checkNumberStatus(numberId);
         if (!numLookup.numberExists) {
@@ -17,13 +19,15 @@ module.exports = {
 
         try {
             await WhatsAppService.getClient().sendText(numberId, message);
-            // success
+            DBLogService.entrySucceed(logEntryId);
         } catch (error) {
             console.error(error);
+            DBLogService.entryFailed(logEntryId, error.message);
         }
     },
 
     async createGroup(participents) {
+        const logEntryId = await DBLogService.createEntry("WhatsAppController.createGroup", { participents });
         try {
             const dummyMemberId = converNumber(DUMMY_MEMBER_PHONE);
             const { gid: { _serialized: groupId } } = await WhatsAppService.getClient().createGroup("MatchNLearn Group", [dummyMemberId]);
@@ -52,9 +56,10 @@ module.exports = {
                 }
             }
 
-            // success
+            DBLogService.entrySucceed(logEntryId);
         } catch (error) {
             console.error(error);
+            DBLogService.entryFailed(logEntryId, error.message);
         }
     }
 }
