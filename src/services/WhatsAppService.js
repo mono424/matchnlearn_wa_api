@@ -1,6 +1,8 @@
 const EventEmitter = require('events');
 const venom = require('venom-bot');
+const DBDataPersistence = require('./DBDataPersistence');
 
+const TOKEN_FILENAME = "bot.data.json";
 const GROUP_WAIT_TIMEOUT = 10000; // 10 seconds
 
 const CHROMIUM_ARGS = [
@@ -72,7 +74,8 @@ module.exports = {
                 browserArgs: CHROMIUM_ARGS,
             },
         );
-        this.getClient().onAddedToGroup((...events) => this.events.emit("onAddedToGroup", ...events))
+        this.getClient().onAddedToGroup((...events) => this.events.emit("onAddedToGroup", ...events));
+        DBDataPersistence.updateFile(TOKEN_FILENAME);
     },
 
     onStatusChange(statusSession) {
@@ -96,6 +99,7 @@ module.exports = {
      * Deauthorizes the current client
      */
     async deauthorize() {
+        await DBDataPersistence.removeFile(TOKEN_FILENAME);
         if (!(await this.isAuthorized())) throw(new Error("Not authorized."));
         this._currentQr = null;
         return this.getClient().logout();
