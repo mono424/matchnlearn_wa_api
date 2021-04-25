@@ -1,7 +1,7 @@
 const fs = require('fs');
 const path = require('path');
 const Joi = require('@hapi/joi');
-const WhatsAppService = require('../services/WhatsApp');
+const WhatsAppService = require('../services/WhatsAppService');
 const TEMPLATE = fs.readFileSync(path.resolve(__dirname + "/../../html/auth.html")).toString();
 
 function sleep(ms) {

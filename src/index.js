@@ -1,7 +1,8 @@
 require('dotenv').config()
 const Hapi = require('@hapi/hapi');
 const { registerRoutes } = require('./routes');
-const WhatsAppService = require('./services/WhatsApp');
+const db = require('./db');
+const WhatsAppService = require('./services/WhatsAppService');
 
 // const IS_DEVELOP = process.env.NODE_ENV === "development"; 
 
@@ -14,6 +15,7 @@ const init = async () => {
         }
     });
     
+    await db.init(process.env.MONGO_URL);
     WhatsAppService.init();
     registerRoutes(server);
 
