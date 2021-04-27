@@ -1,16 +1,16 @@
 version: '3'
 
 services:
-  api:
-    build: ./
-    ports:
-      - 5001:80
-    environment:
-      - PORT=80
-      - HOST=localhost
-      - DUMMY_MEMBER_PHONE=${DUMMY_MEMBER_PHONE}
-      - MONGO_URL=${MONGO_URL}
-      - ADMIN_PASSWORD=${ADMIN_PASSWORD}
+  # api:
+  #   build: ./
+  #   ports:
+  #     - 5001:80
+  #   environment:
+  #     - PORT=80
+  #     - HOST=localhost
+  #     - DUMMY_MEMBER_PHONE=${DUMMY_MEMBER_PHONE}
+  #     - MONGO_URL=${MONGO_URL}
+  #     - ADMIN_PASSWORD=${ADMIN_PASSWORD}
   device:
     privileged: true
     devices:
