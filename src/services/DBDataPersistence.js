@@ -47,10 +47,10 @@ module.exports = {
        });
        
        for (const { file, data } of (await files.toArray())) {
-           const filePath = path.resolve(basePath, file);
-           fs.writeFileSync(filePath, data);
-           console.log(`💾  Restored Persistent-File: "${file}".`);
-       }
+            const filePath = path.resolve(basePath, file);
+            fs.writeFileSync(filePath, data.buffer);
+            console.log(`💾  Restored Persistent-File: "${file}".`);
+        }
     },
 
 }
