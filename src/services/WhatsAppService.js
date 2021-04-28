@@ -1,5 +1,6 @@
 const EventEmitter = require('events');
 const venom = require('venom-bot');
+const RetryService = require('./RetryService');
 const DBDataPersistence = require('./DBDataPersistence');
 
 const TOKEN_FILENAME = "bot.data.json";
@@ -59,6 +60,7 @@ module.exports = {
      * @returns {Promise}
      */
     async init() {
+        const startTime = new Date();
         this._client = await venom.create(
             'bot',
             this.onQrCode.bind(this),
@@ -77,6 +79,8 @@ module.exports = {
         );
         this.getClient().onAddedToGroup((...events) => this.events.emit("onAddedToGroup", ...events));
         DBDataPersistence.updateFile(TOKEN_FILENAME);
+        const initTime = new Date();
+        setTimeout(() => RetryService.retryFailedBetween(startTime, initTime), 5000) // Retry failed during startup
     },
 
     onStatusChange(statusSession) {

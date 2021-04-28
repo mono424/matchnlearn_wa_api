@@ -3,20 +3,36 @@ const db = require('../db');
 
 module.exports = {
 
-    async createEntry(event, meta, status = "open") {
+    async createEntry(event, meta) {
         const res = await db.getClient().db().collection("whatsapp-logs").insertOne({
             event,
-            status,
+            status: "created",
+            retries: 0,
             meta: (meta || {}),
-            startedAt: new Date(),
         });
         return res.insertedId;
+    },
+
+    async entryStarted(entryId) {
+        await db.getClient().db().collection("whatsapp-logs").updateOne(
+            { _id: ObjectId(entryId) },
+            { $set: { status: "started", startedAt: new Date(), }, },
+            { upsert: true }
+        );
+    },
+
+    async incrementRetry(entryId) {
+        await db.getClient().db().collection("whatsapp-logs").updateOne(
+            { _id: ObjectId(entryId) },
+            { $inc: { retries: 1 }, },
+            { upsert: true }
+        );
     },
 
     async entryFailed(entryId, errorDetails) {
         await db.getClient().db().collection("whatsapp-logs").updateOne(
             { _id: ObjectId(entryId) },
-            { $set: { status: "failed", errorDetails: (errorDetails || {}), endedAt: new Date(), }, },
+            { $set: { status: "failed", lastErrorDetails: (errorDetails || {}), endedAt: new Date(), }, },
             { upsert: true }
         );
     },

@@ -6,8 +6,9 @@ const DUMMY_MEMBER_PHONE = process.env.DUMMY_MEMBER_PHONE;
 
 module.exports = {
 
-    async sendMessage(number, message) {
-        const logEntryId = await DBLogService.createEntry("WhatsAppController.sendMessage", { number, message });
+    async sendMessage(number, message, logEntryId = null) {
+        logEntryId = logEntryId || await DBLogService.createEntry("WhatsAppController.sendMessage", { number, message });
+        await DBLogService.entryStarted(logEntryId);
 
         try {
             if (!(await WhatsAppService.isAuthorized())) {
@@ -32,8 +33,10 @@ module.exports = {
         }
     },
 
-    async createGroup(name, participents) {
-        const logEntryId = await DBLogService.createEntry("WhatsAppController.createGroup", { name, participents });
+    async createGroup(name, participents, logEntryId = null) {
+        logEntryId = logEntryId || await DBLogService.createEntry("WhatsAppController.createGroup", { name, participents });
+        await DBLogService.entryStarted(logEntryId);
+
         try {
             if (!(await WhatsAppService.isAuthorized())) {
                 throw Error("WhatsappService not auhtorized.");
