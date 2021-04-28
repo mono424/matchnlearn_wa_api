@@ -1,7 +1,7 @@
 const WhatsAppService = require('../services/WhatsAppService');
 const DBLogService = require('../services/DBLogService');
 
-const converNumber = (number) => number.replace(/^[\+]/, "") + "@c.us";
+const converNumber = (number) => number.replace(/^[\+]/, "").replace(/\s/g, "") + "@c.us";
 const DUMMY_MEMBER_PHONE = process.env.DUMMY_MEMBER_PHONE;
 
 module.exports = {
