@@ -19,6 +19,7 @@ This endpoint creates a group and invites all participients defined in the paylo
 #### Body / Payload
 ```json
 {
+    "name": "Awesome Group Name",
     "participents": [
         { "number": "+49000000000", "message": "Hey Daniel, join our cool group :) Here is the link {inviteUrl}." },
         { "number": "+49000000001", "message": "Hey Franklin, join our cool group :) Here is the link {inviteUrl}." }

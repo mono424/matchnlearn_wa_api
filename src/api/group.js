@@ -10,7 +10,8 @@ module.exports = {
             path: '/group',
             options: {
                 validate: {
-                    payload: Joi.object({ 
+                    payload: Joi.object({
+                        name: Joi.string().required(),
                         participents: Joi.array().items(Joi.object({
                             number: Joi.string().required(),
                             message: Joi.string().required()
@@ -19,11 +20,8 @@ module.exports = {
                 }
             },
             handler: async (request, h) => {
-                const { participents } = request.payload;
-                if (!(await WhatsAppService.isAuthorized())) {
-                    return Boom.locked("Not Authorized. Authorize whatsapp first by using '/auth'.");
-                }
-                WhatsAppController.createGroup(participents);
+                const { name, participents } = request.payload;
+                WhatsAppController.createGroup(name, participents);
                 return { status: "ok" };
             }
         }

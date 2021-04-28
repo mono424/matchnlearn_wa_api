@@ -21,10 +21,10 @@ module.exports = {
         );
     },
 
-    async entrySucceed(entryId) {
+    async entrySucceed(entryId, result) {
         await db.getClient().db().collection("whatsapp-logs").updateOne(
             { _id: ObjectId(entryId) },
-            { $set:{ status: "success", endedAt: new Date(), } },
+            { $set:{ status: "success", result: (result || {}), endedAt: new Date(), } },
             { upsert: true }
         );
     }
