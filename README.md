@@ -21,18 +21,19 @@ This endpoint creates a group and invites all participients defined in the paylo
 {
     "name": "Awesome Group Name",
     "participents": [
-        { "number": "+49000000000", "message": "Hey Daniel, join our cool group :) Here is the link {inviteUrl}." },
-        { "number": "+49000000001", "message": "Hey Franklin, join our cool group :) Here is the link {inviteUrl}." }
+        { "studentId": "{MONGO_STUDENT_ID}", "message": "Hey Daniel, join our cool group :) Here is the link {inviteUrl}." },
+        { "studentId": "{MONGO_STUDENT_ID}", "message": "Hey Franklin, join our cool group :) Here is the link {inviteUrl}." }
     ]
 }
 ```
 
 ### POST /message
 This endpoint sends a message to specific number. You can use it confirmations, reminders or notifications for example.
+This Endpoint sets a flag for each student, which indicates wether the service could reach the student number or not : `validWhatsAppNumber=true/false`
 #### Body / Payload
 ```json
 {
-	"number": "+49000000000",
+	"studentId": "{MONGO_STUDENT_ID}",
 	"message": "Hey Daniel, this is my awesome confirmation message :)"
 }
 ```

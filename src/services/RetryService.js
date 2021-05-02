@@ -30,7 +30,7 @@ module.exports = {
                 WhatsAppController.createGroup(logEntry.meta.name, logEntry.meta.participents, logEntry._id);
             break;
             case "WhatsAppController.sendMessage":
-                WhatsAppController.sendMessage(logEntry.meta.number, logEntry.meta.message, logEntry._id);
+                WhatsAppController.sendMessage(logEntry.meta.studentId, logEntry.meta.message, logEntry._id);
             break;
         }
     }

@@ -13,7 +13,7 @@ module.exports = {
                     payload: Joi.object({
                         name: Joi.string().required(),
                         participents: Joi.array().items(Joi.object({
-                            number: Joi.string().required(),
+                            studentId: Joi.string().required(),
                             message: Joi.string().required()
                         })).min(1).required()
                     })

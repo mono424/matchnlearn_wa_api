@@ -11,14 +11,14 @@ module.exports = {
             options: {
                 validate: {
                     payload: Joi.object({
-                        number: Joi.string().required(),
+                        studentId: Joi.string().required(),
                         message: Joi.string().required()
                     })
                 }
             },
             handler: async (request, h) => {
-                const { number, message } = request.payload;
-                WhatsAppController.sendMessage(number, message);
+                const { studentId, message } = request.payload;
+                WhatsAppController.sendMessage(studentId, message);
                 return { status: "ok" };
             }
         }
