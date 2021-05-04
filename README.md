@@ -37,3 +37,12 @@ This Endpoint sets a flag for each student, which indicates wether the service c
 	"message": "Hey Daniel, this is my awesome confirmation message :)"
 }
 ```
+
+### GET /check/:studentId
+Check the number of a specific student. Returns true if its availabl on whatsapp
+#### Response
+```json
+{
+	"valid": true,
+}
+```
