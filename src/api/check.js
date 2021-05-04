@@ -1,25 +1,22 @@
 const Joi = require('@hapi/joi');
-const Boom = require('@hapi/boom');
-const WhatsAppService = require('../services/WhatsAppService');
 const WhatsAppController = require('../controller/WhatsAppController');
 
 module.exports = {
     routes: () => [
         {
-            method: 'POST',
-            path: '/message',
+            method: 'GET',
+            path: '/check/{studentId}',
             options: {
                 validate: {
-                    payload: Joi.object({
+                    params: Joi.object({
                         studentId: Joi.string().required(),
-                        message: Joi.string().required()
                     })
                 }
             },
             handler: async (request, h) => {
-                const { studentId, message } = request.payload;
-                WhatsAppController.sendMessage(studentId, message);
-                return { status: "ok" };
+                const { studentId } = request.params;
+                const res = await WhatsAppController.checkNumber(studentId);
+                return { valid: res };
             }
         }
     ]

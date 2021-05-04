@@ -3,6 +3,7 @@ const routes= [
     require('./api/auth'),
     require('./api/group'),
     require('./api/message'),
+    require('./api/check'),
 ];
 
 module.exports = {
