@@ -93,11 +93,10 @@ module.exports = {
         }, 5000);
 
         // Second retry during startup
-        setTimeout(async () => {
-            const initTime = new Date();
-            await RetryService.retryFailedBetween(startTime, initTime);
-            this.isStartingUp = false;
-        }, 15000);
+        // setTimeout(async () => {
+        //     const initTime = new Date();
+        //     await RetryService.retryFailedBetween(startTime, initTime);
+        // }, 15000);
     },
 
     onStatusChange(statusSession) {
@@ -105,14 +104,14 @@ module.exports = {
         this._status = statusSession;
 
 
-        if (!this.isStartingUp) {
-            if (statusSession == "chatsAvailable") {
-                const from = new Date();
-                from.setMinutes(from.getMinutes() - 5);
-                const to = new Date();
-                RetryService.retryFailedBetween(from, to);
-            }
-        }
+        // if (!this.isStartingUp) {
+        //     if (statusSession == "chatsAvailable") {
+        //         const from = new Date();
+        //         from.setMinutes(from.getMinutes() - 5);
+        //         const to = new Date();
+        //         RetryService.retryFailedBetween(from, to);
+        //     }
+        // }
     },
 
     onQrCode(base64Qrimg, asciiQR, attempts, urlCode) {
