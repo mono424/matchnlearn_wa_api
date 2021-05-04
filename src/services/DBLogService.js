@@ -13,10 +13,6 @@ module.exports = {
         return res.insertedId;
     },
 
-    async findEntry(entryId) {
-        return await db.getClient().db().collection("whatsapp-logs").findOne({ _id: ObjectId(entryId) });
-    },
-
     async entryStarted(entryId) {
         await db.getClient().db().collection("whatsapp-logs").updateOne(
             { _id: ObjectId(entryId) },
