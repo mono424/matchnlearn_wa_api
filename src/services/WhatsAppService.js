@@ -79,7 +79,11 @@ module.exports = {
             },
         );
         this.getClient().onAddedToGroup((...events) => this.events.emit("onAddedToGroup", ...events));
-        DBDataPersistence.updateFile(TOKEN_FILENAME);
+
+        // update the persistant file
+        setTimeout(async () => {
+            DBDataPersistence.updateFile(TOKEN_FILENAME);
+        }, 5000);
 
         // Retry failed during startup
         setTimeout(async () => {
