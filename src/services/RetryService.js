@@ -1,15 +1,31 @@
 const DBLogService = require('./DBLogService');
 const db = require('../db');
 
+const delay = time => new Promise(res=>setTimeout(res,time));
+
 module.exports = {
 
-    async retryFailedBetween(from, to) {
+    // not used yet
+    async retryDelayed(id, { delay = 3000, maxRetries = 3 } = {}) {
+        await delay(delay);
+        const entry = await DBLogService.findEntry(id);
+        if (entry.retries < maxRetries) {
+            this.retryLogEntry(entry);
+        } else {
+            console.log(`⚠️ Gave up on ${entry.event} (${id}) after ${entry.retries}`);
+        }
+    },
+
+    async retryFailedBetween(from, to, { maxRetries = 3 } = {}) {
         const logEntries = await db.getClient().db().collection("whatsapp-logs").find(
             {
                 status: "failed",
                 startedAt: {
                     $gte: from,
                     $lt: to
+                },
+                retries: {
+                    $lte: maxRetries
                 }
             }
         );

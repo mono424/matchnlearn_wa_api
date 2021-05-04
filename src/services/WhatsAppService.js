@@ -17,6 +17,7 @@ const CHROMIUM_ARGS = [
 ];
 
 module.exports = {
+    isStartingUp: true,
     events: new EventEmitter(),
     _currentQr: null,
     _client: null,
@@ -79,12 +80,35 @@ module.exports = {
         );
         this.getClient().onAddedToGroup((...events) => this.events.emit("onAddedToGroup", ...events));
         DBDataPersistence.updateFile(TOKEN_FILENAME);
-        const initTime = new Date();
-        setTimeout(() => RetryService.retryFailedBetween(startTime, initTime), 5000) // Retry failed during startup
+
+        // Retry failed during startup
+        setTimeout(async () => {
+            const initTime = new Date();
+            await RetryService.retryFailedBetween(startTime, initTime);
+            this.isStartingUp = false;
+        }, 5000);
+
+        // Second retry during startup
+        setTimeout(async () => {
+            const initTime = new Date();
+            await RetryService.retryFailedBetween(startTime, initTime);
+            this.isStartingUp = false;
+        }, 15000);
     },
 
     onStatusChange(statusSession) {
+        console.log('Status Session: ', statusSession);
         this._status = statusSession;
+
+
+        if (!this.isStartingUp) {
+            if (statusSession == "chatsAvailable") {
+                const from = new Date();
+                from.setMinutes(from.getMinutes() - 5);
+                const to = new Date();
+                RetryService.retryFailedBetween(from, to);
+            }
+        }
     },
 
     onQrCode(base64Qrimg, asciiQR, attempts, urlCode) {
