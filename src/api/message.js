@@ -39,7 +39,10 @@ module.exports = {
             },
             handler: async (request, h) => {
                 const { filter, message, dry } = request.payload;
-                let students = await StudentController.findMany(filter);
+                let students = await StudentController.findMany({
+                    ...filter,
+                    validWhatsAppNumber: true
+                });
                 
                 let dryResult = [];
                 for (const student of students) {
