@@ -55,7 +55,7 @@ module.exports = {
                 throw Error("Number is registered but cannot receive Messages.");
             }
 
-            await WhatsAppService.getClient().sendText(numberId, message);
+            await WhatsAppService.getClient().sendText(numberId, this.replacePlaceholder(message, student));
             DBLogService.entrySucceed(logEntryId);
             StudentController.trySet(studentId, "validWhatsAppNumber", true);
         } catch (error) {
@@ -111,5 +111,11 @@ module.exports = {
             console.error(error);
             DBLogService.entryFailed(logEntryId, error.message);
         }
+    },
+
+    replacePlaceholder(message, student) {
+        return message
+            .replace(/\{name\}/g, student.name)
+            .replace(/\{phone\}/g, student.phoneNumber);
     }
 }

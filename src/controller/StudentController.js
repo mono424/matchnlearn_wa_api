@@ -15,6 +15,21 @@ module.exports = {
             );
         } catch (_) {}
         return false;
-    }
+    },
+
+    findMany({ from, to, matched, validWhatsAppNumber }) {
+        let filter = {};
+        if (from !== null || to !== null) {
+            filter.createdAt = {};
+            if (from !== null) filter.createdAt.$gte = new Date(from);
+            if (to !== null) filter.createdAt.$lt = new Date(to);
+        }
+        if (matched !== null) filter.to = matched;
+        if (validWhatsAppNumber !== null) filter.validWhatsAppNumber = validWhatsAppNumber;
+
+        return db.getClient().db().collection("students").find({ 
+            ...filter
+        }).toArray();
+    },
 
 }

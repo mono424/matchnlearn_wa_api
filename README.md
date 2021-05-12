@@ -46,3 +46,46 @@ Check the number of a specific student. Returns true if its availabl on whatsapp
 	"valid": true,
 }
 ```
+
+### POST /message/all
+You can send a messsage to many students. With the filters you can choose who should get the message.
+Further you can test your filters by settings the paramter `dry` in payload to true.
+
+Following Placeholder are available in the message: `{name}`, `{phone}`.
+
+#### Body / Payload
+```json
+{
+	"filter": {
+		"from": "2021-05-02 09:01:26.140Z",
+		"to": "2021-05-03 09:01:26.140Z",
+        "matched": true,
+	},
+	"message": " --> A message for you my friend {name} {phone} *:)*",
+	"dry": true
+}
+```
+#### Response
+```json
+{
+  "status": "ok",
+  "count": 3,
+  "dryResult": [
+    {
+      "id": "608d2ce0f3b3e3218bbb99e0",
+      "name": "Frank",
+      "message": " --> A message for you my friend Frank +491234345124 *:)*"
+    },
+    {
+      "id": "608e676c660afe3bbef09ced",
+      "name": "Simon",
+      "message": " --> A message for you my friend Simon +49123435234 *:)*"
+    },
+    {
+      "id": "608e67ca660afe3bbef09cee",
+      "name": "Nils",
+      "message": " --> A message for you my friend Nils +49112342135 *:)*"
+    }
+  ]
+}
+```
