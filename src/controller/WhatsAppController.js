@@ -125,6 +125,7 @@ module.exports = {
         let i = 1;
         for (const group of groups) {
             groupStatsLog(`Update ${i} of ${groups.length} [${group._id}]`);
+
             // Sync whatsapp chat id
             if (!group.whatsAppChatId) {
                 const waId = await this._findChatGroupIdForGroup(group);
@@ -183,20 +184,16 @@ module.exports = {
         }
     },
 
-    async test() {
-        const groups = (await WhatsAppService.getClient().getAllChatsGroups()).filter(chat => chat.name.startsWith("MatchNLearn"));
-        const messages = (await WhatsAppService.getClient().loadAndGetAllMessagesInChat(groups[0].id._serialized)).map(msg => {
-            return {
-                id: msg.id,
-                author: msg.author,
-                timestamp: msg.timestamp
-            }
-        });
-        console.log(messages);
+    async _findChatGroupIdForGroup(group) {
+        for (const student of group.students) {
+            const groupId = await this._findChatGroupIdFromStudent(student);
+            if (groupId != null) return groupId;
+        }
+        return null;
     },
 
-    async _findChatGroupIdForGroup(group) {
-        const firstPerson = await StudentController.find(group.students[0].studentId);
+    async _findChatGroupIdFromStudent(student) {
+        const firstPerson = await StudentController.find(student.studentId);
         const msgs = await WhatsAppService.getClient().getAllMessagesInChat(converNumber(firstPerson.phoneNumber));
         const inviteLinks = msgs.map(this.getInviteLinksFromMessage).filter(x => x);
 
