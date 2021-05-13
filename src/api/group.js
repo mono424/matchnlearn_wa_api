@@ -24,6 +24,14 @@ module.exports = {
                 WhatsAppController.createGroup(name, participents);
                 return { status: "ok" };
             }
+        },
+        {
+            method: 'POST',
+            path: '/group/update-stats',
+            handler: async (request, h) => {
+                WhatsAppController.updateGroupStats();
+                return { status: "ok" };
+            }
         }
     ]
 }

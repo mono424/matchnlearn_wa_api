@@ -1,8 +1,12 @@
 const WhatsAppService = require('../services/WhatsAppService');
 const DBLogService = require('../services/DBLogService');
 const StudentController = require('./StudentController');
+const GroupController = require('./GroupController');
 const Boom = require('@hapi/boom');
+const { find } = require('./StudentController');
+const chalk = require('chalk');
 
+const groupStatsLog = (msg) => console.log(chalk.cyan("[UPDATE_GROUP_STATS] ") + msg);
 const converNumber = (number) => number.replace(/^[\+]/, "").replace(/\s/g, "") + "@c.us";
 const DUMMY_MEMBER_PHONE = process.env.DUMMY_MEMBER_PHONE;
 
@@ -111,6 +115,85 @@ module.exports = {
             console.error(error);
             DBLogService.entryFailed(logEntryId, error.message);
         }
+    },
+
+    async updateGroupStats() {
+        groupStatsLog("Started");
+        const groups = await GroupController.findMany();
+        
+        groupStatsLog(`Found ${groups.length} groups`);
+        let i = 1;
+        for (const group of groups) {
+            groupStatsLog(`Update ${i} of ${groups.length} [${group._id}]`);
+            // Sync whatsapp chat id
+            if (!group.whatsAppChatId) {
+                const waId = await _findChatGroupIdForGroup();
+                if (!waId) {
+                    groupStatsLog(`Failed to link whatsAppChatId with group`);
+                    continue;
+                }
+
+                group.whatsAppChatId = waId;
+                await GroupController.trySet(group._id, "whatsAppChatId", waId);
+                groupStatsLog(`Successfully linked whatsAppChatId with group`);
+            }
+
+            await _updateGroupStats(group);
+            groupStatsLog(`Finished ${i} of ${groups.length}`);
+        }
+    },
+
+    async _updateGroupStats(group) {
+        const messages = (await WhatsAppService.getClient().loadAndGetAllMessagesInChat(group.whatsAppChatId)).map(msg => {
+            return {
+                id: msg.id,
+                author: msg.author,
+                timestamp: msg.timestamp
+            }
+        });
+
+        for (const student of group.students) {
+            // Sync whatsapp id
+            if (!student.whatsAppId) {
+                const studentRecord = await StudentController.find(student.studentId);
+                student.waStudentId = converNumber(studentRecord.phoneNumber);
+            }
+            const relevantMessages = messages.filter(msg => msg.author == student.waStudentId);
+            student.numberOfMessages = relevantMessages.length;
+            student.lastMessageAt = new Date(relevantMessages[relevantMessages.length - 1].timestamp * 1000);
+        }
+
+        await GroupController.trySet(group._id, "students", group.students);
+    },
+
+    async test() {
+        const groups = (await WhatsAppService.getClient().getAllChatsGroups()).filter(chat => chat.name.startsWith("MatchNLearn"));
+        const messages = (await WhatsAppService.getClient().loadAndGetAllMessagesInChat(groups[0].id._serialized)).map(msg => {
+            return {
+                id: msg.id,
+                author: msg.author,
+                timestamp: msg.timestamp
+            }
+        });
+        console.log(messages);
+    },
+
+    async _findChatGroupIdForGroup(group) {
+        const firstPerson = await StudentController.find(group.students[0].studentId);
+        const msgs = await WhatsAppService.getClient().getAllMessagesInChat(converNumber(firstPerson.phoneNumber));
+        const inviteLinks = msgs.map(this.getInviteLinksFromMessage).filter(x => x);
+
+        if (inviteLinks.length == 0) return;
+        const groupInfo = await WhatsAppService.getClient().getGroupInfoFromInviteLink(inviteLinks[0]);
+        return groupInfo.id._serialized;
+    },
+
+    // we could add content parser aswell
+    getInviteLinksFromMessage(message) {
+        if (message.matchedText && message.matchedText.startsWith("https://chat.whatsapp.com/")) {
+            return message.matchedText;
+        }
+        return null;
     },
 
     replacePlaceholder(message, student) {
