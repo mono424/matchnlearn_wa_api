@@ -153,6 +153,7 @@ module.exports = {
             }
         }).filter(x => x);
 
+        let totalMessages = 0;
         for (const student of group.students) {
             // Sync whatsapp id
             if (!student.whatsAppId) {
@@ -161,12 +162,24 @@ module.exports = {
             }
             const relevantMessages = messages.filter(msg => msg.author == student.waStudentId);
             student.numberOfMessages += relevantMessages.length;
-            student.lastMessageAt = new Date(relevantMessages[relevantMessages.length - 1].timestamp * 1000);
+            if (relevantMessages.length > 0) {
+                student.lastMessageAt = new Date(relevantMessages[relevantMessages.length - 1].timestamp * 1000);
+            } else {
+                student.lastMessageAt = null;
+            }
+
+            totalMessages += student.numberOfMessages;
         }
 
         await GroupController.trySet(group._id, "students", group.students);
-        await GroupController.trySet(group._id, "lastMessageId", messages[messages.length - 1].id);
-        await GroupController.trySet(group._id, "lastMessageAt", new Date(messages[messages.length - 1].timestamp * 1000));
+        await GroupController.trySet(group._id, "totalMessages", totalMessages);
+        if (messages.length > 0) {
+            await GroupController.trySet(group._id, "lastMessageId", messages[messages.length - 1].id);
+            await GroupController.trySet(group._id, "lastMessageAt", new Date(messages[messages.length - 1].timestamp * 1000));
+        } else {
+            await GroupController.trySet(group._id, "lastMessageId", null);
+            await GroupController.trySet(group._id, "lastMessageAt", null);
+        }
     },
 
     async test() {
