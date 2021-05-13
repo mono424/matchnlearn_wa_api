@@ -147,7 +147,7 @@ module.exports = {
 
     async _updateGroupStats(group) {
         const messages = (await WhatsAppService.getClient().loadAndGetAllMessagesInChat(group.whatsAppChatId)).map(msg => {
-            if (msg.timestamp * 1000 <= group.lastMessageAt.getTime()) return null;
+            if (group.lastMessageAt != null && msg.timestamp * 1000 <= group.lastMessageAt.getTime()) return null;
             return {
                 id: msg.id,
                 author: msg.author,
