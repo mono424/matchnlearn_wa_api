@@ -127,7 +127,7 @@ module.exports = {
             groupStatsLog(`Update ${i} of ${groups.length} [${group._id}]`);
             // Sync whatsapp chat id
             if (!group.whatsAppChatId) {
-                const waId = await _findChatGroupIdForGroup();
+                const waId = await this._findChatGroupIdForGroup();
                 if (!waId) {
                     groupStatsLog(`Failed to link whatsAppChatId with group`);
                     continue;
@@ -138,19 +138,20 @@ module.exports = {
                 groupStatsLog(`Successfully linked whatsAppChatId with group`);
             }
 
-            await _updateGroupStats(group);
+            await this._updateGroupStats(group);
             groupStatsLog(`Finished ${i} of ${groups.length}`);
         }
     },
 
     async _updateGroupStats(group) {
         const messages = (await WhatsAppService.getClient().loadAndGetAllMessagesInChat(group.whatsAppChatId)).map(msg => {
+            if (msg.timestamp * 1000 <= group.lastMessageAt.getTime()) return null;
             return {
                 id: msg.id,
                 author: msg.author,
                 timestamp: msg.timestamp
             }
-        });
+        }).filter(x => x);
 
         for (const student of group.students) {
             // Sync whatsapp id
@@ -159,11 +160,13 @@ module.exports = {
                 student.waStudentId = converNumber(studentRecord.phoneNumber);
             }
             const relevantMessages = messages.filter(msg => msg.author == student.waStudentId);
-            student.numberOfMessages = relevantMessages.length;
+            student.numberOfMessages += relevantMessages.length;
             student.lastMessageAt = new Date(relevantMessages[relevantMessages.length - 1].timestamp * 1000);
         }
 
         await GroupController.trySet(group._id, "students", group.students);
+        await GroupController.trySet(group._id, "lastMessageId", messages[messages.length - 1].id);
+        await GroupController.trySet(group._id, "lastMessageAt", new Date(messages[messages.length - 1].timestamp * 1000));
     },
 
     async test() {
