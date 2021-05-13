@@ -127,7 +127,7 @@ module.exports = {
             groupStatsLog(`Update ${i} of ${groups.length} [${group._id}]`);
             // Sync whatsapp chat id
             if (!group.whatsAppChatId) {
-                const waId = await this._findChatGroupIdForGroup();
+                const waId = await this._findChatGroupIdForGroup(group);
                 if (!waId) {
                     groupStatsLog(`Failed to link whatsAppChatId with group`);
                     continue;
