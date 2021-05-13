@@ -89,3 +89,12 @@ Following Placeholder are available in the message: `{name}`, `{phone}`.
   ]
 }
 ```
+
+### POST /group/update-stats
+Run through all groups in background and update their stats.
+#### Response
+```json
+{
+  "status": "ok"
+}
+```
