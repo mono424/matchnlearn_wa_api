@@ -122,8 +122,9 @@ module.exports = {
         const groups = await GroupController.findMany();
         
         groupStatsLog(`Found ${groups.length} groups`);
-        let i = 1;
+        let i = 0;
         for (const group of groups) {
+            i++;
             groupStatsLog(`Update ${i} of ${groups.length} [${group._id}]`);
 
             // Sync whatsapp chat id
@@ -141,7 +142,6 @@ module.exports = {
 
             await this._updateGroupStats(group);
             groupStatsLog(`Finished ${i} of ${groups.length}`);
-            i++;
         }
     },
 
