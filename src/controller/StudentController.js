@@ -24,7 +24,7 @@ module.exports = {
             if (from !== null) filter.createdAt.$gte = new Date(from);
             if (to !== null) filter.createdAt.$lt = new Date(to);
         }
-        if (matched !== null) filter.to = matched;
+        if (matched !== null) filter.matched = matched;
         if (validWhatsAppNumber !== null) filter.validWhatsAppNumber = validWhatsAppNumber;
 
         return db.getClient().db().collection("students").find({ 
