@@ -140,6 +140,7 @@ module.exports = {
 
             await this._updateGroupStats(group);
             groupStatsLog(`Finished ${i} of ${groups.length}`);
+            i++;
         }
     },
 
