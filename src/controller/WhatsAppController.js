@@ -155,6 +155,8 @@ module.exports = {
             }
         }).filter(x => x);
 
+        const groupMemberIds = (await WhatsAppService.getClient().getGroupMembersIds(group.whatsAppChatId));
+
         let totalMessages = 0;
         for (const student of group.students) {
             // Sync whatsapp id
@@ -162,6 +164,11 @@ module.exports = {
                 const studentRecord = await StudentController.find(student.studentId);
                 student.waStudentId = converNumber(studentRecord.phoneNumber);
             }
+
+            // Check if still member of group
+            student.isGroupMember = groupMemberIds.filter(id => id._serialized == student.waStudentId).length > 0;
+
+            // Get relevant Messages
             const relevantMessages = messages.filter(msg => msg.author == student.waStudentId);
             student.numberOfMessages += relevantMessages.length;
             if (relevantMessages.length > 0) {
@@ -169,7 +176,6 @@ module.exports = {
             } else {
                 student.lastMessageAt = null;
             }
-
             totalMessages += student.numberOfMessages;
         }
 
