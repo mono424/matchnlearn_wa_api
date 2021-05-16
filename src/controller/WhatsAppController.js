@@ -12,7 +12,7 @@ const DUMMY_MEMBER_PHONE = process.env.DUMMY_MEMBER_PHONE;
 
 module.exports = {
 
-    async checkNumber(studentId) {
+    async checkNumber(studentId, updateDbRecord = false) {
         if (!(await WhatsAppService.isAuthorized())) {
             throw Boom.internal("WhatsappService not auhtorized.");
         }
@@ -24,15 +24,11 @@ module.exports = {
         
         const numberId = converNumber(student.phoneNumber);
         const numLookup = await WhatsAppService.getClient().checkNumberStatus(numberId);
+        let valid = numLookup.numberExists && numLookup.canReceiveMessage;
+        
+        if (updateDbRecord) await StudentController.trySet(student._id, "validWhatsAppNumber", valid);
 
-        if (!numLookup.numberExists) {
-            return false;
-        }
-        if (!numLookup.numberExists) {
-            return false;
-        }
-
-        return true;
+        return valid;
     },
 
     async sendMessage(studentId, message, logEntryId = null) {

@@ -40,10 +40,30 @@ This Endpoint sets a flag for each student, which indicates wether the service c
 
 ### GET /check/{STUDENT_ID}
 Check the number of a specific student. Returns true if its availabl on whatsapp
+#### Query Params
+ - **updateRecord** *boolean* if true, it will update the database record of the student
+
 #### Response
 ```json
 {
 	"valid": true,
+}
+```
+
+### GET /check/all
+Checks if the number is valid for all students
+#### Query Params
+ - **onlyInvalid** *boolean* if true, it will update only students with invalid whatsappnumber
+ - **updateRecord** *boolean* if true, it will update the database record of the students
+ - **background** *boolean* if true, it will run in background
+
+#### Response
+```json
+{
+  "60897b96fa718a642bc5cab2": true,
+  "608e676c660afe3bbef09ced": true,
+  "608e67ca660afe3bbef09cee": true,
+  "608e6832963ef9474d8ad1c0": true
 }
 ```
 
