@@ -31,6 +31,7 @@ module.exports = {
                             from: Joi.date().default(null),
                             to: Joi.date().default(null),
                             matched: Joi.bool().default(null),
+                            hasCreatedAt: Joi.bool().default(null),
                         }),
                         message: Joi.string().required(),
                         dry: Joi.bool().default(false),
