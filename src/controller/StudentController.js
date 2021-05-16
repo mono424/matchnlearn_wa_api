@@ -17,12 +17,15 @@ module.exports = {
         return false;
     },
 
-    findMany({ from, to, matched, validWhatsAppNumber }) {
+    findMany({ from, to, matched, validWhatsAppNumber, hasCreatedAt }) {
         let filter = {};
         if (from !== null || to !== null) {
             filter.createdAt = {};
             if (from !== null) filter.createdAt.$gte = new Date(from);
             if (to !== null) filter.createdAt.$lt = new Date(to);
+        }
+        if (hasCreatedAt !== null) {
+            filter.createdAt = { $exists: hasCreatedAt };
         }
         if (matched !== null) filter.matched = matched;
         if (validWhatsAppNumber !== null) filter.validWhatsAppNumber = validWhatsAppNumber;

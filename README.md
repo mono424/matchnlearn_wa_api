@@ -59,7 +59,8 @@ Following Placeholder are available in the message: `{name}`, `{phone}`.
 	"filter": {
 		"from": "2021-05-02 09:01:26.140Z",
 		"to": "2021-05-03 09:01:26.140Z",
-        "matched": true,
+		"hasCreatedAt": true,
+    "matched": true,
 	},
 	"message": " --> A message for you my friend {name} {phone} *:)*",
 	"dry": true
