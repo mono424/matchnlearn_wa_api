@@ -28,7 +28,10 @@ module.exports = {
                     const res = {};
                     for (const studentId of studentIds) {
                         console.log("Check student whatsapp number: " + studentId._id.toString());
-                        let valid = await WhatsAppController.checkNumber(studentId._id, updateRecord);
+                        let valid = false;
+                        try {
+                            valid = await WhatsAppController.checkNumber(studentId._id, updateRecord);
+                        } catch (error) {}
                         res[studentId._id.toString()] = valid;
                     }
                     return res;
