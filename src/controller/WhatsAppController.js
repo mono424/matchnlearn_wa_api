@@ -175,15 +175,14 @@ module.exports = {
             totalMessages += student.numberOfMessages;
         }
 
-        await GroupController.trySet(group._id, "students", group.students);
-        await GroupController.trySet(group._id, "totalMessages", totalMessages);
-        if (messages.length > 0) {
-            await GroupController.trySet(group._id, "lastMessageId", messages[messages.length - 1].id);
-            await GroupController.trySet(group._id, "lastMessageAt", new Date(messages[messages.length - 1].timestamp * 1000));
-        } else {
-            await GroupController.trySet(group._id, "lastMessageId", null);
-            await GroupController.trySet(group._id, "lastMessageAt", null);
-        }
+        await GroupController.trySetMany(group._id, {
+            students: group.students,
+            totalMessages: totalMessages,
+            invitedStudentsTotal: group.students.length,
+            invitedStudentsJoined: group.students.filter((student) => student.isGroupMember).length,
+            lastMessageId: (messages.length > 0) ? messages[messages.length - 1].id : null,
+            lastMessageAt: (messages.length > 0) ? new Date(messages[messages.length - 1].timestamp * 1000) : null
+        });
     },
 
     async _findChatGroupIdForGroup(group) {

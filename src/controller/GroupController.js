@@ -17,4 +17,14 @@ module.exports = {
         return false;
     },
 
+    async trySetMany(id, keyVal) {
+        try {
+            return await db.getClient().db().collection("groups").updateOne(
+                { _id: ObjectId(id) },
+                { $set: keyVal }
+            );
+        } catch (_) {}
+        return false;
+    },
+
 }
