@@ -141,9 +141,9 @@ module.exports = {
         }
     },
 
-    async _updateGroupStats(group) {
+    async _updateGroupStats(group, complete = false) {
         const messages = (await WhatsAppService.getClient().loadAndGetAllMessagesInChat(group.whatsAppChatId)).map(msg => {
-            if (group.lastMessageAt != null && msg.timestamp * 1000 <= group.lastMessageAt.getTime()) return null;
+            if (group.lastMessageAt != null && complete == false && msg.timestamp * 1000 <= group.lastMessageAt.getTime()) return null;
             return {
                 id: msg.id,
                 author: msg.author,
@@ -155,6 +155,8 @@ module.exports = {
 
         let totalMessages = 0;
         for (const student of group.students) {
+            if (complete) student.numberOfMessages = 0;
+
             // Sync whatsapp id
             if (!student.whatsAppId) {
                 const studentRecord = await StudentController.find(student.studentId);
@@ -169,19 +171,22 @@ module.exports = {
             student.numberOfMessages += relevantMessages.length;
             if (relevantMessages.length > 0) {
                 student.lastMessageAt = new Date(relevantMessages[relevantMessages.length - 1].timestamp * 1000);
-            } else {
+            } else if (!student.lastMessageAt) {
                 student.lastMessageAt = null;
             }
             totalMessages += student.numberOfMessages;
         }
+
+        const lastMessageId = (messages.length > 0) ? messages[messages.length - 1].id : (group.lastMessageId ? group.lastMessageId : null);
+        const lastMessageAt = (messages.length > 0) ? new Date(messages[messages.length - 1].timestamp * 1000) : (group.lastMessageAt ? group.lastMessageAt : null);
 
         await GroupController.trySetMany(group._id, {
             students: group.students,
             totalMessages: totalMessages,
             invitedStudentsTotal: group.students.length,
             invitedStudentsJoined: group.students.filter((student) => student.isGroupMember).length,
-            lastMessageId: (messages.length > 0) ? messages[messages.length - 1].id : null,
-            lastMessageAt: (messages.length > 0) ? new Date(messages[messages.length - 1].timestamp * 1000) : null
+            lastMessageId: lastMessageId,
+            lastMessageAt: lastMessageAt
         });
     },
 
