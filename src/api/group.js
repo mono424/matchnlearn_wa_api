@@ -28,8 +28,15 @@ module.exports = {
         {
             method: 'POST',
             path: '/group/update-stats',
+            options: {
+                validate: {
+                    query: Joi.object({
+                        complete: Joi.bool().default(false),
+                    })
+                }
+            },
             handler: async (request, h) => {
-                WhatsAppController.updateGroupStats();
+                WhatsAppController.updateGroupStats(request.query.complete);
                 return { status: "ok" };
             }
         }

@@ -113,7 +113,7 @@ module.exports = {
         }
     },
 
-    async updateGroupStats() {
+    async updateGroupStats(complete = false) {
         groupStatsLog("Started");
         const groups = await GroupController.findMany();
         
@@ -136,7 +136,7 @@ module.exports = {
                 groupStatsLog(`Successfully linked whatsAppChatId with group`);
             }
 
-            await this._updateGroupStats(group);
+            await this._updateGroupStats(group, complete);
             groupStatsLog(`Finished ${i} of ${groups.length}`);
         }
     },
