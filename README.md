@@ -115,6 +115,7 @@ Following Placeholder are available in the message: `{name}`, `{phone}`.
 Run through all groups in background and update their stats.
 #### Query Params
  - **complete** *boolean* if true, it will not only update from lastMessageId, but from the beginning of time :)
+ - **debug** *boolean* if true, it will print some additional information into the logs
 
 #### Response
 ```json
@@ -128,6 +129,7 @@ Run through all groups in background and update their stats.
 Updates stats of an specific group
 #### Query Params
  - **complete** *boolean* if true, it will not only update from lastMessageId, but from the beginning of time :)
+ - **debug** *boolean* if true, it will print some additional information into the logs
 
 #### Response
 ```json
