@@ -36,7 +36,27 @@ module.exports = {
                 }
             },
             handler: async (request, h) => {
-                WhatsAppController.updateGroupStats(request.query.complete);
+                WhatsAppController.updateGroupStats({ complete: request.query.complete });
+                return { status: "ok" };
+            }
+        },
+        {
+            method: 'POST',
+            path: '/group/{groupId}/update-stats',
+            options: {
+                validate: {
+                    params: Joi.object({
+                        groupId: Joi.string().required(),
+                    }),
+                    query: Joi.object({
+                        complete: Joi.bool().default(false),
+                    })
+                }
+            },
+            handler: async (request, h) => {
+                const { groupId } = request.params;
+                const { complete } = request.query;
+                WhatsAppController.updateGroupStats({ groupId, complete });
                 return { status: "ok" };
             }
         }

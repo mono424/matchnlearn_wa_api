@@ -113,10 +113,10 @@ module.exports = {
         }
     },
 
-    async updateGroupStats(complete = false) {
+    async updateGroupStats({ groupId = null, complete = false } = {}) {
         groupStatsLog("Started");
-        const groups = await GroupController.findMany();
-        
+        const groups = !groupId ? await GroupController.findMany() : [await GroupController.find(groupId)].filter(x => x);
+
         groupStatsLog(`Found ${groups.length} groups`);
         let i = 0;
         for (const group of groups) {

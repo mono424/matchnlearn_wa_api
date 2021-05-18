@@ -122,3 +122,16 @@ Run through all groups in background and update their stats.
   "status": "ok"
 }
 ```
+
+
+### POST /group/{groupId}/update-stats
+Updates stats of an specific group
+#### Query Params
+ - **complete** *boolean* if true, it will not only update from lastMessageId, but from the beginning of time :)
+
+#### Response
+```json
+{
+  "status": "ok"
+}
+```
