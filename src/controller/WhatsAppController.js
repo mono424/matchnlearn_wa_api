@@ -113,7 +113,7 @@ module.exports = {
         }
     },
 
-    async updateGroupStats({ groupId = null, complete = false } = {}) {
+    async updateGroupStats({ groupId = null, complete = false, debug = false } = {}) {
         groupStatsLog("Started");
         const groups = !groupId ? await GroupController.findMany() : [await GroupController.find(groupId)].filter(x => x);
 
@@ -136,12 +136,12 @@ module.exports = {
                 groupStatsLog(`Successfully linked whatsAppChatId with group`);
             }
 
-            await this._updateGroupStats(group, complete);
+            await this._updateGroupStats(group, complete, debug);
             groupStatsLog(`Finished ${i} of ${groups.length}`);
         }
     },
 
-    async _updateGroupStats(group, complete = false) {
+    async _updateGroupStats(group, complete = false, debug = false) {
         const messages = (await WhatsAppService.getClient().loadAndGetAllMessagesInChat(group.whatsAppChatId)).map(msg => {
             if (group.lastMessageAt != null && complete == false && msg.timestamp * 1000 <= group.lastMessageAt.getTime()) return null;
             return {
@@ -152,6 +152,7 @@ module.exports = {
         }).filter(x => x);
 
         const groupMemberIds = (await WhatsAppService.getClient().getGroupMembersIds(group.whatsAppChatId));
+        if (debug) groupStatsLog(` >> Group Members: ` + groupMemberIds.join(", "));
 
         let totalMessages = 0;
         for (const student of group.students) {

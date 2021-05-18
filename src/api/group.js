@@ -32,11 +32,13 @@ module.exports = {
                 validate: {
                     query: Joi.object({
                         complete: Joi.bool().default(false),
+                        debug: Joi.bool().default(false),
                     })
                 }
             },
             handler: async (request, h) => {
-                WhatsAppController.updateGroupStats({ complete: request.query.complete });
+                const { complete, debug } = request.query;
+                WhatsAppController.updateGroupStats({ complete, debug });
                 return { status: "ok" };
             }
         },
@@ -50,13 +52,14 @@ module.exports = {
                     }),
                     query: Joi.object({
                         complete: Joi.bool().default(false),
+                        debug: Joi.bool().default(false),
                     })
                 }
             },
             handler: async (request, h) => {
                 const { groupId } = request.params;
-                const { complete } = request.query;
-                WhatsAppController.updateGroupStats({ groupId, complete });
+                const { complete, debug } = request.query;
+                WhatsAppController.updateGroupStats({ groupId, complete, debug });
                 return { status: "ok" };
             }
         }
