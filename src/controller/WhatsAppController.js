@@ -152,7 +152,7 @@ module.exports = {
         }).filter(x => x);
 
         const groupMemberIds = (await WhatsAppService.getClient().getGroupMembersIds(group.whatsAppChatId));
-        if (debug) groupStatsLog(` >> Group Members: ` + groupMemberIds.join(", "));
+        if (debug) groupStatsLog(` >> Group Members: ` + groupMemberIds.map(id => id._serialized).join(", "));
 
         let totalMessages = 0;
         for (const student of group.students) {
