@@ -3,6 +3,10 @@ const db = require('../db');
 
 module.exports = {
 
+    async findMany(id)  {
+        return db.getClient().db().collection("groups").findOne({ _id: ObjectId(id) });
+    },
+
     async findMany()  {
         return db.getClient().db().collection("groups").find().toArray();
     },
