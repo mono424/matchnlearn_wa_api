@@ -26,14 +26,17 @@ module.exports = {
                     } : {}, { _id: 1 }).toArray();
                     
                     const res = {};
+                    console.log("Start checking numebrs: " + studentIds.length);
+                    let i = 0;
                     for (const studentId of studentIds) {
-                        console.log("Check student whatsapp number: " + studentId._id.toString());
+                        console.log("[" + (++i) + " / " + studentIds.length + "] Check student whatsapp number: " + studentId._id.toString());
                         let valid = false;
                         try {
                             valid = await WhatsAppController.checkNumber(studentId._id, updateRecord);
                         } catch (error) {}
                         res[studentId._id.toString()] = valid;
                     }
+                    console.log("Done checking numebrs");
                     return res;
                 };
 
