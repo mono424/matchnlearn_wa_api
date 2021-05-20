@@ -22,7 +22,7 @@ module.exports = {
 
                 const doStuff = async (updateRecord, onlyInvalid) => {
                     const studentIds = await db.getClient().db().collection("students").find(onlyInvalid ? {
-                        validWhatsAppNumber: false
+                        $or: [{validWhatsAppNumber: null}, {validWhatsAppNumber: false}]
                     } : {}, { _id: 1 }).toArray();
                     
                     const res = {};
