@@ -24,7 +24,7 @@ module.exports = {
         
         const numberId = converNumber(student.phoneNumber);
         const numLookup = await WhatsAppService.getClient().checkNumberStatus(numberId);
-        let valid = numLookup.numberExists && numLookup.canReceiveMessage;
+        let valid = !!(numLookup.numberExists && numLookup.canReceiveMessage);
         
         if (updateDbRecord) await StudentController.trySet(student._id, "validWhatsAppNumber", valid);
 
