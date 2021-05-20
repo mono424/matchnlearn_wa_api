@@ -7,6 +7,7 @@ const { find } = require('./StudentController');
 const chalk = require('chalk');
 
 const groupStatsLog = (msg) => console.log(chalk.cyan("[UPDATE_GROUP_STATS] ") + msg);
+const createGroupLog = (msg) => console.log(chalk.cyan("[CREATE_GROUP] ") + msg);
 const converNumber = (number) => number.replace(/^[\+]/, "").replace(/\s/g, "") + "@c.us";
 const DUMMY_MEMBER_PHONE = process.env.DUMMY_MEMBER_PHONE;
 
@@ -68,6 +69,7 @@ module.exports = {
     async createGroup(name, participents, logEntryId = null) {
         logEntryId = logEntryId || await DBLogService.createEntry("WhatsAppController.createGroup", { name, participents });
         await DBLogService.entryStarted(logEntryId);
+        createGroupLog("Started creating group");
 
         try {
             if (!(await WhatsAppService.isAuthorized())) {
@@ -75,16 +77,22 @@ module.exports = {
             }
 
             const dummyMemberId = converNumber(DUMMY_MEMBER_PHONE);
+            createGroupLog("Create group ...");
             const { gid: { _serialized: groupId } } = await WhatsAppService.getClient().createGroup(name, [dummyMemberId]);
-
+            
+            createGroupLog("Wait for group to appear: " + groupId);
             await WhatsAppService.waitForGroup(groupId);
-            await WhatsAppService.getClient().removeParticipant(groupId, dummyMemberId);
 
+            createGroupLog("Remove dummy participant ...");
+            await WhatsAppService.getClient().removeParticipant(groupId, dummyMemberId);
+            
+            createGroupLog("Create invite link ...");
             const inviteLink = await WhatsAppService.getClient().getGroupInviteLink(groupId);
             const res = [];
             
             for (const participent of participents) {
                 try {
+                    createGroupLog("Send invite link to student: " + participent.studentId);
                     const student = await StudentController.find(participent.studentId);
                     if (!student) {
                         throw Error(`Student(${participent.studentId}) not found.`);
