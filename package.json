@@ -17,6 +17,6 @@
     "chalk": "^4.1.1",
     "dotenv": "^8.2.0",
     "mongodb": "^3.6.6",
-    "venom-bot": "3.0.13"
+    "venom-bot": "3.0.16"
   }
 }
