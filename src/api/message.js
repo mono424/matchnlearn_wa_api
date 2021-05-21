@@ -55,6 +55,15 @@ module.exports = {
                             continue;
                         }
 
+                        if(!student.validWhatsAppNumber) {
+                            dryResult.push({
+                                id: student._id,
+                                error: "No valid WhatsAppNumber"
+                            });
+                            console.log("Cannot find Student(" + studentId + ")");
+                            continue;
+                        }
+
                         if (dry) {
                             dryResult.push({
                                 id: student._id,
