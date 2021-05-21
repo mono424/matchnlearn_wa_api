@@ -3,7 +3,6 @@ const DBLogService = require('../services/DBLogService');
 const StudentController = require('./StudentController');
 const GroupController = require('./GroupController');
 const Boom = require('@hapi/boom');
-const { find } = require('./StudentController');
 const chalk = require('chalk');
 
 const groupStatsLog = (msg) => console.log(chalk.cyan("[UPDATE_GROUP_STATS] ") + msg);

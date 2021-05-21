@@ -1,5 +1,6 @@
 const path = require('path');
 const Joi = require('@hapi/joi');
+const db = require('../db');
 const WhatsAppController = require('../controller/WhatsAppController');
 
 module.exports = {
