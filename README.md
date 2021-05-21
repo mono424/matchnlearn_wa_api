@@ -85,6 +85,52 @@ Checks if the number is valid for all students
 }
 ```
 
+### POST /message/many
+You can send a messsage to many students. You can select them by passing their ids.
+Further you can test your filters by settings the paramter `dry` in payload to true.
+
+Following Placeholder are available in the message: `{name}`, `{phone}`.
+
+#### Body / Payload
+```json
+{
+	"studentIds": [
+    "608d2ce0f3b3e3218bbb99e0",
+    "608e676c660afe3bbef09ced",
+    "608e67ca660afe3bbef09cee",
+  ],
+	"message": " --> A message for you my friend {name} {phone} *:)*",
+	"dry": true
+}
+```
+#### Response
+```json
+{
+  "status": "ok",
+  "count": 3,
+  "dryResult": [
+    {
+      "id": "608d2ce0f3b3e3218bbb99e0",
+      "name": "Frank",
+      "phoneNumber": "+491234345124",
+      "message": " --> A message for you my friend Frank +491234345124 *:)*"
+    },
+    {
+      "id": "608e676c660afe3bbef09ced",
+      "name": "Simon",
+      "phoneNumber": "+49123435234",
+      "message": " --> A message for you my friend Simon +49123435234 *:)*"
+    },
+    {
+      "id": "608e67ca660afe3bbef09cee",
+      "name": "Nils",
+      "phoneNumber": "+49112342135",
+      "message": " --> A message for you my friend Nils +49112342135 *:)*"
+    }
+  ]
+}
+```
+
 ### POST /message/all
 You can send a messsage to many students. With the filters you can choose who should get the message.
 Further you can test your filters by settings the paramter `dry` in payload to true.
@@ -113,16 +159,19 @@ Following Placeholder are available in the message: `{name}`, `{phone}`.
     {
       "id": "608d2ce0f3b3e3218bbb99e0",
       "name": "Frank",
+      "phoneNumber": "+491234345124",
       "message": " --> A message for you my friend Frank +491234345124 *:)*"
     },
     {
       "id": "608e676c660afe3bbef09ced",
       "name": "Simon",
+      "phoneNumber": "+49123435234",
       "message": " --> A message for you my friend Simon +49123435234 *:)*"
     },
     {
       "id": "608e67ca660afe3bbef09cee",
       "name": "Nils",
+      "phoneNumber": "+49112342135",
       "message": " --> A message for you my friend Nils +49112342135 *:)*"
     }
   ]

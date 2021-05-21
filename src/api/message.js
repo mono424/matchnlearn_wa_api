@@ -2,6 +2,10 @@ const Joi = require('@hapi/joi');
 const StudentController = require('../controller/StudentController');
 const WhatsAppController = require('../controller/WhatsAppController');
 
+function sleep(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+}
+
 module.exports = {
     routes: () => [
         {
@@ -19,6 +23,66 @@ module.exports = {
                 const { studentId, message } = request.payload;
                 WhatsAppController.sendMessage(studentId, message);
                 return { status: "ok" };
+            }
+        },
+        {
+            method: 'POST',
+            path: '/message/many',
+            options: {
+                validate: {
+                    payload: Joi.object({
+                        studentIds: Joi.array().items(Joi.string()).required(),
+                        message: Joi.string().required(),
+                        dry: Joi.bool().default(false),
+                    })
+                }
+            },
+            handler: async (request, h) => {
+                const { studentIds, message, dry } = request.payload;
+
+                const doStuff = async (studentIds, message, dry) => {
+                    let dryResult = [];
+                    for (const studentId of studentIds) {
+                        console.log("Sending message to Student(" + studentId + ")");
+                        let student = await StudentController.find(studentId);
+
+                        if(!student) {
+                            dryResult.push({
+                                id: student._id,
+                                error: "Not found!"
+                            });
+                            console.log("Cannot find Student(" + studentId + ")");
+                            continue;
+                        }
+
+                        if (dry) {
+                            dryResult.push({
+                                id: student._id,
+                                name: student.name,
+                                phoneNumber: student.phoneNumber,
+                                message: WhatsAppController.replacePlaceholder(message, student),
+                            });
+                            continue;
+                        }
+
+                        try {
+                            await WhatsAppController.sendMessage(student.id, message);
+                            console.log("Succeed sending message to Student(" + studentId + ")");
+                        } catch (error) {
+                            console.log("Failed sending message to Student(" + studentId + ")");
+                        }
+                        await sleep(500);
+                    }
+                    return dryResult;
+                };
+                
+                if (dry) {
+                    let result = await doStuff(studentIds, message, dry);
+                    return { status: "ok", count: studentIds.length, dryResult: result };
+                } else {
+                    doStuff(studentIds, message, dry);
+                    return { status: "ok", count: studentIds.length };
+                }
             }
         },
         {
@@ -51,6 +115,7 @@ module.exports = {
                         dryResult.push({
                             id: student._id,
                             name: student.name,
+                            phoneNumber: student.phoneNumber,
                             message: WhatsAppController.replacePlaceholder(message, student),
                         });
                         continue;

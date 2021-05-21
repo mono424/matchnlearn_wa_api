@@ -4,6 +4,7 @@ const routes= [
     require('./api/group'),
     require('./api/message'),
     require('./api/check'),
+    require('./api/repairNumber'),
 ];
 
 module.exports = {
