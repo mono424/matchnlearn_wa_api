@@ -32,15 +32,16 @@ module.exports = {
                 validate: {
                     payload: Joi.object({
                         studentIds: Joi.array().items(Joi.string()).required(),
+                        messageId: Joi.string().required(),
                         message: Joi.string().required(),
                         dry: Joi.bool().default(false),
                     })
                 }
             },
             handler: async (request, h) => {
-                const { studentIds, message, dry } = request.payload;
+                const { studentIds, messageId, message, dry } = request.payload;
 
-                const doStuff = async (studentIds, message, dry) => {
+                const doStuff = async (studentIds, messageId, message, dry) => {
                     let dryResult = [];
                     for (const studentId of studentIds) {
                         console.log("Sending message to Student(" + studentId + ")");
@@ -75,6 +76,9 @@ module.exports = {
                         }
 
                         try {
+                            const sentMessages = student.sentMulticastMessages || [];
+                            sentMessages.push()
+                            await StudentController.trySet("sentMulticastMessages", )
                             await WhatsAppController.sendMessage(student.id, message);
                             console.log("Succeed sending message to Student(" + studentId + ")");
                         } catch (error) {
@@ -86,54 +90,55 @@ module.exports = {
                 };
                 
                 if (dry) {
-                    let result = await doStuff(studentIds, message, dry);
+                    let result = await doStuff(studentIds, messageId, message, dry);
                     return { status: "ok", count: studentIds.length, dryResult: result };
                 } else {
-                    doStuff(studentIds, message, dry);
+                    doStuff(studentIds, messageId, message, dry);
                     return { status: "ok", count: studentIds.length };
                 }
             }
         },
-        {
-            method: 'POST',
-            path: '/message/all',
-            options: {
-                validate: {
-                    payload: Joi.object({
-                        filter: Joi.object({
-                            from: Joi.date().default(null),
-                            to: Joi.date().default(null),
-                            matched: Joi.bool().default(null),
-                            hasCreatedAt: Joi.bool().default(null),
-                        }),
-                        message: Joi.string().required(),
-                        dry: Joi.bool().default(false),
-                    })
-                }
-            },
-            handler: async (request, h) => {
-                const { filter, message, dry } = request.payload;
-                let students = await StudentController.findMany({
-                    ...filter,
-                    validWhatsAppNumber: true
-                });
+        // add sentMulticastMessages to student to keep track on sent messages
+        // {
+        //     method: 'POST',
+        //     path: '/message/all',
+        //     options: {
+        //         validate: {
+        //             payload: Joi.object({
+        //                 filter: Joi.object({
+        //                     from: Joi.date().default(null),
+        //                     to: Joi.date().default(null),
+        //                     matched: Joi.bool().default(null),
+        //                     hasCreatedAt: Joi.bool().default(null),
+        //                 }),
+        //                 message: Joi.string().required(),
+        //                 dry: Joi.bool().default(false),
+        //             })
+        //         }
+        //     },
+        //     handler: async (request, h) => {
+        //         const { filter, message, dry } = request.payload;
+        //         let students = await StudentController.findMany({
+        //             ...filter,
+        //             validWhatsAppNumber: true
+        //         });
                 
-                let dryResult = [];
-                for (const student of students) {
-                    if (dry) {
-                        dryResult.push({
-                            id: student._id,
-                            name: student.name,
-                            phoneNumber: student.phoneNumber,
-                            message: WhatsAppController.replacePlaceholder(message, student),
-                        });
-                        continue;
-                    }
-                    WhatsAppController.sendMessage(student.id, message);
-                }
+        //         let dryResult = [];
+        //         for (const student of students) {
+        //             if (dry) {
+        //                 dryResult.push({
+        //                     id: student._id,
+        //                     name: student.name,
+        //                     phoneNumber: student.phoneNumber,
+        //                     message: WhatsAppController.replacePlaceholder(message, student),
+        //                 });
+        //                 continue;
+        //             }
+        //             WhatsAppController.sendMessage(student.id, message);
+        //         }
 
-                return { status: "ok", count: students.length, dryResult: dry ? dryResult : undefined };
-            }
-        }
+        //         return { status: "ok", count: students.length, dryResult: dry ? dryResult : undefined };
+        //     }
+        // }
     ]
 }

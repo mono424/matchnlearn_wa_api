@@ -88,6 +88,7 @@ Checks if the number is valid for all students
 ### POST /message/many
 You can send a messsage to many students. You can select them by passing their ids.
 Further you can test your filters by settings the paramter `dry` in payload to true.
+It adds the `messageId` to the student record on `sentMulticastMessages`-Array.
 
 Following Placeholder are available in the message: `{name}`, `{phone}`.
 
@@ -99,6 +100,7 @@ Following Placeholder are available in the message: `{name}`, `{phone}`.
     "608e676c660afe3bbef09ced",
     "608e67ca660afe3bbef09cee",
   ],
+  "messageId": "someMessageIdentefier",
   "message": " --> A message for you my friend {name} {phone} *:)*",
   "dry": true
 }
@@ -131,7 +133,7 @@ Following Placeholder are available in the message: `{name}`, `{phone}`.
 }
 ```
 
-### POST /message/all
+### POST /message/all [DISABLED]
 You can send a messsage to many students. With the filters you can choose who should get the message.
 Further you can test your filters by settings the paramter `dry` in payload to true.
 
