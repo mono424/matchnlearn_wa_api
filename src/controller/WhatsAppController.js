@@ -18,7 +18,7 @@ const repairPhoneNumber = (phoneNumber) => {
 
 module.exports = {
 
-    async repairNumber(studentId) {
+    async repairNumber(studentId, skipAlreadyValid = false) {
         if (!(await WhatsAppService.isAuthorized())) {
             throw Boom.internal("WhatsappService not auhtorized.");
         }
@@ -28,7 +28,7 @@ module.exports = {
             throw Boom.notFound(`Student(${studentId}) not found.`);
         }
 
-        if (this._checkPhoneNumber(student.phoneNumber)) {
+        if (skipAlreadyValidCheck && this._checkPhoneNumber(student.phoneNumber)) {
             await StudentController.trySet(student._id, "validWhatsAppNumber", true);
             throw Boom.badRequest(`Student(${studentId}) has already a valid phonenumber.`);
         }
