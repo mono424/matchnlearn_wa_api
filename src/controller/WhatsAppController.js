@@ -28,7 +28,7 @@ module.exports = {
             throw Boom.notFound(`Student(${studentId}) not found.`);
         }
 
-        if (skipAlreadyValidCheck && this._checkPhoneNumber(student.phoneNumber)) {
+        if (skipAlreadyValid && this._checkPhoneNumber(student.phoneNumber)) {
             await StudentController.trySet(student._id, "validWhatsAppNumber", true);
             throw Boom.badRequest(`Student(${studentId}) has already a valid phonenumber.`);
         }
