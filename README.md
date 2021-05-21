@@ -38,6 +38,24 @@ This Endpoint sets a flag for each student, which indicates wether the service c
 }
 ```
 
+### POST /repair-number/{STUDENT_ID}
+Repairs the number of a specific student. Returns true if it was successful
+
+#### Response
+```json
+{
+	"repaired": true,
+}
+```
+
+### POST /repair-number/all
+Repairs all numbers of students with invalid whatsappnumber.
+
+#### Response
+```text
+ok
+```
+
 ### GET /check/{STUDENT_ID}
 Check the number of a specific student. Returns true if its availabl on whatsapp
 #### Query Params

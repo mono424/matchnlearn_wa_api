@@ -11,7 +11,46 @@ const createGroupLog = (msg) => console.log(chalk.cyan("[CREATE_GROUP] ") + msg)
 const converNumber = (number) => number.replace(/^[\+]/, "").replace(/\s/g, "") + "@c.us";
 const DUMMY_MEMBER_PHONE = process.env.DUMMY_MEMBER_PHONE;
 
+const repairPhoneNumber = (phoneNumber) => {
+    if (phoneNumber.startsWith("+1")) return phoneNumber.replace(/^\+1/, "+491");
+    return null;
+};
+
 module.exports = {
+
+    async repairNumber(studentId) {
+        if (!(await WhatsAppService.isAuthorized())) {
+            throw Boom.internal("WhatsappService not auhtorized.");
+        }
+
+        const student = await StudentController.find(studentId);
+        if (!student) {
+            throw Boom.notFound(`Student(${studentId}) not found.`);
+        }
+
+        if (this._checkPhoneNumber(student.phoneNumber)) {
+            throw Boom.badRequest(`Student(${studentId}) has already a valid phonenumber.`);
+        }
+
+        let repairedNumber = repairPhoneNumber(student.phoneNumber);
+        if (repairedNumber == null) {
+            return false;
+        }
+
+        if (!this._checkPhoneNumber(repairedNumber)) {
+            return false;
+        }
+
+        await StudentController.trySet(student._id, "validWhatsAppNumber", true);
+        await StudentController.trySet(student._id, "phoneNumber", repairedNumber);
+        return true;
+    },
+
+    async _checkPhoneNumber(phoneNumber) {
+        const numberId = converNumber(phoneNumber);
+        const numLookup = await WhatsAppService.getClient().checkNumberStatus(numberId);
+        return !!(numLookup.numberExists && numLookup.canReceiveMessage);
+    },
 
     async checkNumber(studentId, updateDbRecord = false) {
         if (!(await WhatsAppService.isAuthorized())) {
@@ -23,10 +62,7 @@ module.exports = {
             throw Boom.notFound(`Student(${studentId}) not found.`);
         }
         
-        const numberId = converNumber(student.phoneNumber);
-        const numLookup = await WhatsAppService.getClient().checkNumberStatus(numberId);
-        let valid = !!(numLookup.numberExists && numLookup.canReceiveMessage);
-        
+        let valid = await this._checkPhoneNumber(student.phoneNumber)
         if (updateDbRecord) await StudentController.trySet(student._id, "validWhatsAppNumber", valid);
 
         return valid;

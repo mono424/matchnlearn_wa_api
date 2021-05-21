@@ -26,7 +26,7 @@ module.exports = {
                     } : {}, { _id: 1 }).toArray();
                     
                     const res = {};
-                    console.log("Start checking numebrs: " + studentIds.length);
+                    console.log("Start checking numbers: " + studentIds.length);
                     let i = 0;
                     for (const studentId of studentIds) {
                         console.log("[" + (++i) + " / " + studentIds.length + "] Check student whatsapp number: " + studentId._id.toString());
@@ -36,7 +36,7 @@ module.exports = {
                         } catch (error) {}
                         res[studentId._id.toString()] = valid;
                     }
-                    console.log("Done checking numebrs");
+                    console.log("Done checking numbers");
                     return res;
                 };
 
