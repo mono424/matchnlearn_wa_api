@@ -29,6 +29,7 @@ module.exports = {
         }
 
         if (this._checkPhoneNumber(student.phoneNumber)) {
+            await StudentController.trySet(student._id, "validWhatsAppNumber", true);
             throw Boom.badRequest(`Student(${studentId}) has already a valid phonenumber.`);
         }
 
