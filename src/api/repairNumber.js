@@ -24,7 +24,6 @@ module.exports = {
                         } catch (error) {}
                     }
                     console.log("Done repairing numbers");
-                    return res;
                 };
                 doStuff();
                 return "ok"
