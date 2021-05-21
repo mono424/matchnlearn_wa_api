@@ -94,13 +94,13 @@ Following Placeholder are available in the message: `{name}`, `{phone}`.
 #### Body / Payload
 ```json
 {
-	"studentIds": [
+  "studentIds": [
     "608d2ce0f3b3e3218bbb99e0",
     "608e676c660afe3bbef09ced",
     "608e67ca660afe3bbef09cee",
   ],
-	"message": " --> A message for you my friend {name} {phone} *:)*",
-	"dry": true
+  "message": " --> A message for you my friend {name} {phone} *:)*",
+  "dry": true
 }
 ```
 #### Response

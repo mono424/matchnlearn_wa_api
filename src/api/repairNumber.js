@@ -1,6 +1,6 @@
 const path = require('path');
 const Joi = require('@hapi/joi');
-const WhatsAppService = require('../services/WhatsAppService');
+const WhatsAppController = require('../controller/WhatsAppController');
 
 module.exports = {
     routes: () => [
@@ -8,7 +8,7 @@ module.exports = {
             method: 'POST',
             path: '/repair-number/all',
             handler: async (request, h) => {
-                const doStuff = async (updateRecord, onlyInvalid) => {
+                const doStuff = async () => {
                     const studentIds = await db.getClient().db().collection("students").find({
                         $or: [{validWhatsAppNumber: null}, {validWhatsAppNumber: false}]
                     }, { _id: 1 }).toArray();
@@ -41,7 +41,6 @@ module.exports = {
             },
             handler: async (request, h) => {
                 const { studentId } = request.params;
-                const { updateRecord } = request.query;
                 const res = await WhatsAppController.repairNumber(studentId);
                 return { repaired: res };
             }
