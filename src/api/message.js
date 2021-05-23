@@ -79,7 +79,7 @@ module.exports = {
                             const sentMessages = student.sentMulticastMessages || [];
                             sentMessages.push(messageId)
                             await StudentController.trySet(student._id, "sentMulticastMessages", sentMessages);
-                            await WhatsAppController.sendMessage(student.id, message);
+                            await WhatsAppController.sendMessage(student._id, message);
                             console.log("Succeed sending message to Student(" + student._id + ")");
                         } catch (error) {
                             console.log("Failed sending message to Student(" + student._id + ")");
