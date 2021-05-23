@@ -43,8 +43,9 @@ module.exports = {
 
                 const doStuff = async (studentIds, messageId, message, dry) => {
                     let dryResult = [];
+                    let i = 0;
                     for (const studentId of studentIds) {
-                        console.log("Sending message to Student(" + studentId + ")");
+                        console.log("[" + (++i) + " / " + studentIds.length + "] Sending message to Student(" + studentId + ")");
                         let student = await StudentController.find(studentId);
 
                         if(!student) {
@@ -65,6 +66,16 @@ module.exports = {
                             continue;
                         }
 
+                        const sentMessages = student.sentMulticastMessages || [];
+                        if(sentMessages.includes(messageId)) {
+                            dryResult.push({
+                                id: student._id,
+                                error: "Message with MessageId was already sent to Student(" + studentId + ")"
+                            });
+                            console.log("Message with MessageId was already sent to Student(" + studentId + ")");
+                            continue;
+                        }
+
                         if (dry) {
                             dryResult.push({
                                 id: student._id,
@@ -76,13 +87,12 @@ module.exports = {
                         }
 
                         try {
-                            const sentMessages = student.sentMulticastMessages || [];
                             sentMessages.push(messageId)
                             await StudentController.trySet(student._id, "sentMulticastMessages", sentMessages);
                             await WhatsAppController.sendMessage(student._id, message);
-                            console.log("Succeed sending message to Student(" + student._id + ")");
+                            console.log("[" + i + " / " + studentIds.length + "] Succeed sending message to Student(" + student._id + ")");
                         } catch (error) {
-                            console.log("Failed sending message to Student(" + student._id + ")");
+                            console.log("[" + i + " / " + studentIds.length + "] Failed sending message to Student(" + student._id + ")");
                         }
                         await sleep(500);
                     }

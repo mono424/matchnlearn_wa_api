@@ -89,6 +89,8 @@ Checks if the number is valid for all students
 You can send a messsage to many students. You can select them by passing their ids.
 Further you can test your filters by settings the paramter `dry` in payload to true.
 It adds the `messageId` to the student record on `sentMulticastMessages`-Array.
+This endpoint does not sent messages doubled to people. So if the messageId already exist
+in the `sentMulticastMessages`-Array the student will be ignored.
 
 Following Placeholder are available in the message: `{name}`, `{phone}`.
 
