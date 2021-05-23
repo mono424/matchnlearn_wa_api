@@ -61,7 +61,7 @@ module.exports = {
                                 id: student._id,
                                 error: "No valid WhatsAppNumber"
                             });
-                            console.log("Cannot find Student(" + studentId + ")");
+                            console.log("No valid WhatsAppNumber(" + studentId + ")");
                             continue;
                         }
 
@@ -77,12 +77,12 @@ module.exports = {
 
                         try {
                             const sentMessages = student.sentMulticastMessages || [];
-                            sentMessages.push()
-                            await StudentController.trySet("sentMulticastMessages", )
+                            sentMessages.push(messageId)
+                            await StudentController.trySet(student._id, "sentMulticastMessages", sentMessages);
                             await WhatsAppController.sendMessage(student.id, message);
-                            console.log("Succeed sending message to Student(" + studentId + ")");
+                            console.log("Succeed sending message to Student(" + student._id + ")");
                         } catch (error) {
-                            console.log("Failed sending message to Student(" + studentId + ")");
+                            console.log("Failed sending message to Student(" + student._id + ")");
                         }
                         await sleep(500);
                     }
