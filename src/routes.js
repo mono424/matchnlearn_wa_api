@@ -5,6 +5,7 @@ const routes= [
     require('./api/message'),
     require('./api/check'),
     require('./api/repairNumber'),
+    require('./api/retry'),
 ];
 
 module.exports = {
