@@ -208,3 +208,5 @@ Updates stats of an specific group
   "status": "ok"
 }
 ```
+
+thanks for reading
